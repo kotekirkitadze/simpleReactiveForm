@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 //formbuilder - to handle formcontrol creation
@@ -8,11 +8,12 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   rForm: FormGroup;
   post: any;
   description: string = "";
   name: string = "";
+  titleAlert: string = "This field is required"
 
   constructor(private fb: FormBuilder) {
     this.rForm = fb.group({
@@ -24,9 +25,24 @@ export class AppComponent {
     });
   }
 
-  addPost(post) {
-    // this.description = post.description;
-    // this.name = post.name;
-    console.log(post);
+  addPost({ description, name }) {
+    this.description = description;
+    this.name = name;
+
+  }
+
+  ngOnInit() {
+    this.rForm.get('validate').valueChanges.subscribe(
+      (validate) => {
+        if (validate == "1") {
+          this.rForm.get('name').setValidators([Validators.required, Validators.minLength(3)]);
+          this.titleAlert = "Now you need to have at least 3 characters";
+        } else {
+          this.rForm.get('name').setValidators(Validators.required);
+          this.titleAlert = "This field is required";
+        }
+        this.rForm.get('name').updateValueAndValidity();
+      }
+    );
   }
 }
